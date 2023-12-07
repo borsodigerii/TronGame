@@ -87,9 +87,9 @@ public class DatabaseHelper {
 
     private void log(String msg, boolean error){
         if(error){
-            System.err.println("[DB][" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][ERROR] " + msg);
+            System.err.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][DB][ERROR] " + msg);
         }else{
-            System.out.println("[DB][" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "] " + msg);
+            System.out.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][DB] " + msg);
         }
 
     }

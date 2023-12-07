@@ -1,3 +1,5 @@
+package motorcycle;
+
 import java.awt.*;
 
 public enum MotorcycleColor {

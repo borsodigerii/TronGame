@@ -1,4 +1,6 @@
+import canvas.TronCanvas;
 import database.DatabaseException;
+import utils.UniversalData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +15,7 @@ public class TronGUI{
     JTextField playerOneInput = new JTextField();
     JTextField playerTwoInput = new JTextField();
 
-    private Dimension windowDimension = new Dimension(600, 600);
+    //private static Dimension windowDimension = new Dimension(600, 600);
 
     public TronGUI(){
         try{
@@ -36,9 +38,9 @@ public class TronGUI{
         window.setTitle("Tron Game");
 
         mainContent = new JPanel();
-        mainContent.setPreferredSize(windowDimension);
+        mainContent.setPreferredSize(UniversalData.getWindowDimension());
 
-        /*Canvas canvas = new TronCanvas();
+        /*Canvas canvas = new canvas.TronCanvas();
         canvas.setPreferredSize(windowDimension);
         mainContent.add(canvas);*/
 
@@ -85,7 +87,7 @@ public class TronGUI{
         }
         mainContent.add(loginpanel);
         window.add(mainContent);
-        window.setPreferredSize(windowDimension);
+        window.setPreferredSize(UniversalData.getWindowDimension());
 
         window.pack();
         window.setVisible(true);
@@ -110,13 +112,13 @@ public class TronGUI{
         window.setTitle("Tron Game");
 
         mainContent = new JPanel();
-        mainContent.setPreferredSize(windowDimension);
-
+        mainContent.setPreferredSize(UniversalData.getWindowDimension());
+        // TODO: implement background paint as well
         Canvas canvas = canv;
-        canvas.setPreferredSize(windowDimension);
+        canvas.setPreferredSize(UniversalData.getWindowDimension());
         mainContent.add(canvas);
         window.add(mainContent);
-        window.setPreferredSize(windowDimension);
+        window.setPreferredSize(UniversalData.getWindowDimension());
 
         window.pack();
         window.setVisible(true);

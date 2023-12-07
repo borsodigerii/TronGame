@@ -1,5 +1,7 @@
+import canvas.TronCanvas;
 import database.DatabaseException;
 import database.DatabaseHelper;
+import motorcycle.MotorcycleColor;
 
 import java.text.SimpleDateFormat;
 
@@ -22,14 +24,11 @@ public class TronGame {
         gui.generateGameSpace(canvas);
     }
 
-    private void log(String msg){
-        System.out.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "] " + msg);
-    }
     private void log(String msg, boolean error){
         if(error){
-            System.err.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][ERROR] " + msg);
+            System.err.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][GAME][ERROR] " + msg);
         }else{
-            System.out.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "] " + msg);
+            System.out.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][GAME] " + msg);
         }
 
     }
