@@ -1,3 +1,4 @@
+import canvas.TronBackground;
 import canvas.TronCanvas;
 import database.DatabaseException;
 import utils.UniversalData;
@@ -103,7 +104,7 @@ public class TronGUI{
         game.launchGame();
     }
 
-    public void generateGameSpace(TronCanvas canv) {
+    public void generateGameSpace(TronCanvas canv, TronBackground canvBack) {
         if(window != null){
             window.setVisible(false);
         }
@@ -113,10 +114,26 @@ public class TronGUI{
 
         mainContent = new JPanel();
         mainContent.setPreferredSize(UniversalData.getWindowDimension());
+
+        JPanel canvasContent = new JPanel();
+        canvasContent.setLayout(new OverlayLayout(canvasContent));
+        canvasContent.setPreferredSize(UniversalData.getWindowDimension());
+
+
         // TODO: implement background paint as well
-        Canvas canvas = canv;
+        JPanel canvasBackground = canvBack;
+        canvasBackground.setPreferredSize(UniversalData.getWindowDimension());
+
+        JPanel canvas = canv;
         canvas.setPreferredSize(UniversalData.getWindowDimension());
-        mainContent.add(canvas);
+        canvas.setOpaque(true);
+        /*canvasContent.add(canvasBackground, new Integer(1));
+        canvasContent.add(canvas, new Integer(2));*/
+        canvasContent.add(canvas);
+        canvasContent.add(canvasBackground);
+
+
+        mainContent.add(canvasContent);
         window.add(mainContent);
         window.setPreferredSize(UniversalData.getWindowDimension());
 

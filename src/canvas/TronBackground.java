@@ -2,10 +2,11 @@ package canvas;
 
 import utils.UniversalData;
 
+import javax.swing.*;
 import java.awt.*;
 
-public class TronBackground  extends Canvas  {
-    public void paint(Graphics g){
+public class TronBackground extends JPanel {
+    public void paintComponent(Graphics g){
         int windowWidth = UniversalData.getWindowDimension().width;
         int windowHeight = UniversalData.getWindowDimension().height;
         g.fillRect(0, 0, windowWidth, windowHeight);

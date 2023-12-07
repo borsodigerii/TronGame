@@ -1,3 +1,4 @@
+import canvas.TronBackground;
 import canvas.TronCanvas;
 import database.DatabaseException;
 import database.DatabaseHelper;
@@ -12,6 +13,7 @@ public class TronGame {
 
     private TronGUI gui;
     private TronCanvas canvas;
+    private TronBackground canvasBack;
 
     public TronGame(TronGUI gui) throws DatabaseException {
         db = new DatabaseHelper();
@@ -21,7 +23,8 @@ public class TronGame {
 
     public void launchGame(){
         canvas = new TronCanvas();
-        gui.generateGameSpace(canvas);
+        canvasBack = new TronBackground();
+        gui.generateGameSpace(canvas, canvasBack);
     }
 
     private void log(String msg, boolean error){
