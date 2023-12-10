@@ -9,14 +9,16 @@ import java.text.SimpleDateFormat;
 public class MotorCyclePosition {
     private int x;
     private int y;
+    private int facing;
 
-    public MotorCyclePosition(int x, int y){
-        if(x < UniversalData.getWindowDimension().width || x > UniversalData.getWindowDimension().width || y < UniversalData.getWindowDimension().height || y > UniversalData.getWindowDimension().height){
+    public MotorCyclePosition(int x, int y, int facing){
+        if(x < 0 || x > UniversalData.getWindowDimension().width || y < 0 || y > UniversalData.getWindowDimension().height){
             log("Invalid motor positions were specified.", true);
             throw new InvalidParameterException("Invalid motor positions were specified.");
         }
         this.x = x;
         this.y = y;
+        this.facing = facing;
     }
 
     private void log(String msg, boolean error){
@@ -34,5 +36,27 @@ public class MotorCyclePosition {
 
     public int getY() {
         return y;
+    }
+
+    public int getFacing() {
+        return facing;
+    }
+
+    public void setX(int x) {
+        if(x < 0 || x > UniversalData.getWindowDimension().width){
+            return;
+        }
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        if(y < 0 || y > UniversalData.getWindowDimension().height){
+            return;
+        }
+        this.y = y;
+    }
+
+    public void setFacing(int facing){
+        this.facing = facing;
     }
 }

@@ -3,8 +3,8 @@ package motorcycle;
 import java.awt.*;
 
 public enum MotorcycleColor {
-    RED(new Color(235, 54, 54)),
-    BLUE(new Color(42, 49, 235)),
+    YELLOW(new Color(182, 122, 43)),
+    BLUE(new Color(110, 240, 244)),
     GREEN(new Color(63, 181, 36));
     public final Color color;
     private MotorcycleColor(Color color){

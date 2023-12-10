@@ -1,16 +1,26 @@
+package game;
+
 import canvas.TronBackground;
 import canvas.TronCanvas;
+import canvas.TronCountDown;
+import canvas.TronWin;
 import database.DatabaseException;
 import utils.UniversalData;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.text.SimpleDateFormat;
 import java.util.Objects;
 
 public class TronGUI{
     private JFrame window;
     private JPanel mainContent;
+    private TronCountDown countdown;
+    private TronWin winningScreen;
+    public JPanel canvasContent;
     private TronGame game;
 
     JTextField playerOneInput = new JTextField();
@@ -31,6 +41,7 @@ public class TronGUI{
     }
 
     private void generateLogin(boolean emptyInput){
+        log("Generating login screen..", false);
         if(window != null){
             window.setVisible(false);
         }
@@ -96,39 +107,57 @@ public class TronGUI{
 
     private void startGame(){
         if(Objects.equals(playerOneInput.getText(), "") || Objects.equals(playerTwoInput.getText(), "")){
-            System.err.println("[Login] One or both of the player's names were empty. Re-displaying the login screen");
+            log("One or both of the player's names were empty. Re-displaying the login screen", true);
             generateLogin(true);
             return;
         }
-        System.out.println("[Login] Two names specified, launching game...");
-        game.launchGame();
+        log("Two names specified, launching game...", false);
+        game.launchGame(playerOneInput.getText(), playerTwoInput.getText());
     }
-
-    public void generateGameSpace(TronCanvas canv, TronBackground canvBack) {
+    public void generateGameSpace(TronCanvas canv, TronBackground canvBack, Runnable gameLaunchLogicFunction, TronGame game) {
+        log("Generating game space..", false);
         if(window != null){
             window.setVisible(false);
         }
         window = new JFrame();
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setTitle("Tron Game");
-
+        window.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                //log("Key pressed: " + e.getKeyChar() + "[" + e.getKeyCode() + "]", false);
+                game.handleKeyPress(e.getKeyCode());
+            }
+        });
         mainContent = new JPanel();
         mainContent.setPreferredSize(UniversalData.getWindowDimension());
 
-        JPanel canvasContent = new JPanel();
+        canvasContent = new JPanel();
         canvasContent.setLayout(new OverlayLayout(canvasContent));
         canvasContent.setPreferredSize(UniversalData.getWindowDimension());
 
 
-        // TODO: implement background paint as well
+        log("Rendering background..", false);
         JPanel canvasBackground = canvBack;
         canvasBackground.setPreferredSize(UniversalData.getWindowDimension());
-
+        log("Rendering game canvas..", false);
         JPanel canvas = canv;
         canvas.setPreferredSize(UniversalData.getWindowDimension());
         canvas.setOpaque(true);
         /*canvasContent.add(canvasBackground, new Integer(1));
         canvasContent.add(canvas, new Integer(2));*/
+
+        countdown = new TronCountDown();
+        countdown.setPreferredSize(UniversalData.getWindowDimension());
+        countdown.setOpaque(true);
+
+        winningScreen = new TronWin();
+        winningScreen.setPreferredSize(UniversalData.getWindowDimension());
+        winningScreen.setOpaque(true);
+        winningScreen.setVisible(false);
+
+        canvasContent.add(winningScreen);
+        canvasContent.add(countdown);
         canvasContent.add(canvas);
         canvasContent.add(canvasBackground);
 
@@ -139,5 +168,57 @@ public class TronGUI{
 
         window.pack();
         window.setVisible(true);
+        startCounting(gameLaunchLogicFunction);
+        log("Starting the countdown...", false);
+    }
+
+    public void generateWinningScreen(String winningPlayer){
+        //TODO: befejezni
+        if(Objects.equals(winningPlayer, null)){
+            // draw
+            winningScreen.setDraw(true);
+            winningScreen.setVisible(true);
+            canvasContent.repaint();
+        }else{
+            winningScreen.setWinningPlayer(winningPlayer);
+            winningScreen.setVisible(true);
+            canvasContent.repaint();
+        }
+    }
+
+    public void startCounting(Runnable func){
+        setTimeout(() -> {
+            if(countdown.count-1 == 0){
+                // vege a countdownnak
+                countdown.setVisible(false);
+                func.run();
+            }else{
+                countdown.setCount(countdown.count-1);
+                canvasContent.repaint();
+
+                startCounting(func);
+            }
+
+        }, 1000);
+    }
+    private void log(String msg, boolean error){
+        if(error){
+            System.err.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][GUI][ERROR] " + msg);
+        }else{
+            System.out.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][GUI] " + msg);
+        }
+
+    }
+
+    public static void setTimeout(Runnable runnable, int delay){
+        new Thread(() -> {
+            try {
+                Thread.sleep(delay);
+                runnable.run();
+            }
+            catch (Exception e){
+                System.err.println(e);
+            }
+        }).start();
     }
 }
