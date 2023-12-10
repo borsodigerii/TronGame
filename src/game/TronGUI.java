@@ -40,7 +40,7 @@ public class TronGUI{
 
     }
 
-    private void generateLogin(boolean emptyInput){
+    public void generateLogin(boolean emptyInput){
         log("Generating login screen..", false);
         if(window != null){
             window.setVisible(false);

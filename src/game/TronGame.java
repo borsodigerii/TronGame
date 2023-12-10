@@ -17,6 +17,7 @@ public class TronGame {
     private DatabaseHelper db;
     private MotorcycleColor pOne__color;
     private MotorcycleColor pTwo__color;
+    private boolean isGameGoing = false;
 
     private String p1Name;
     private String p2Name;
@@ -37,8 +38,12 @@ public class TronGame {
     }
 
     public void launchGame(String p1, String p2) {
+        isGameGoing = false;
+        m1 = new MotorCyclePosition(50, UniversalData.getWindowDimension().height - 200, 90);
+        m2 = new MotorCyclePosition(UniversalData.getWindowDimension().width - 100, 50, 270);
         canvas = new TronCanvas();
         canvasBack = new TronBackground();
+        canvas.resetMotorPath();
         gui.generateGameSpace(canvas, canvasBack, this::gameLaunched, this);
         p1Name = p1;
         p2Name = p2;
@@ -48,7 +53,7 @@ public class TronGame {
         log("Game started", false);
         m1 = new MotorCyclePosition(50, canvas.getHeight() - 200, 90);
         m2 = new MotorCyclePosition(canvas.getWidth() - 100, 50, 270);
-
+        isGameGoing = true;
         gameCycle();
     }
 
@@ -91,16 +96,19 @@ public class TronGame {
                 // draw
                 log("The game ended, result is draw", false);
                 gui.generateWinningScreen(null);
+                isGameGoing = false;
                 return;
             } else if (checkWinning() == 2) {
                 // p2 won
                 log("The game ended, result is p2 winning", false);
                 gui.generateWinningScreen(p2Name);
+                isGameGoing = false;
                 return;
             } else if (checkWinning() == 1) {
                 // p1 won
                 log("The game ended, result is p1 winning", false);
                 gui.generateWinningScreen(p1Name);
+                isGameGoing = false;
                 return;
             }
 
@@ -110,7 +118,7 @@ public class TronGame {
 
             gui.canvasContent.repaint();
             // canvas.repaint();
-            gameCycle();
+            if(isGameGoing) gameCycle();
         }, UniversalData.getGameCycle());
 
     }
@@ -153,7 +161,7 @@ public class TronGame {
 
                 for(int n = m1x1 - MotorModelOffsetHorizontal; n > m1x0; n--){
                     for(int m = m1y0; m > m1y1; m--){
-                        if(canvas.getPathToMotors(n, m) == 2){
+                        if(canvas.getPathToMotors(n, m) != 0){
                             won = true;
                             break;
                         }
@@ -181,7 +189,7 @@ public class TronGame {
                 // in this case, we will go from the top left end of the motorcycle, since it is moving to the top and collisions are more likely to happen from the top side, rather from the bottom
                 for(int m = m1y1 + MotorModelOffsetVertical; m < m1y0; m++){
                     for(int n = m1x0; n < m1x1; n++){
-                        if(canvas.getPathToMotors(n, m) == 2){
+                        if(canvas.getPathToMotors(n, m) != 0){
                             won = true;
                             break;
                         }
@@ -208,7 +216,7 @@ public class TronGame {
                 // in this case, we will go from the top left end of the motorcycle, since it is moving to the left and collisions are more likely to happen from the left side, rather from the right
                 for(int n = m1x1 + MotorModelOffsetHorizontal-3; n < m1x0; n++){
                     for(int m = m1y1; m < m1y0; m++){
-                        if(canvas.getPathToMotors(n, m) == 2){
+                        if(canvas.getPathToMotors(n, m) != 0){
                             won = true;
                             break;
                         }
@@ -235,7 +243,7 @@ public class TronGame {
                 // in this case, we will go from the bottom left end of the motorcycle, since it is moving to the bottom and collisions are more likely to happen from the bottom left side, rather from the right
                 for(int m = m1y1 - MotorModelOffsetVertical; m > m1y0; m--){
                     for(int n = m1x0; n < m1x1; n++){
-                        if(canvas.getPathToMotors(n, m) == 2){
+                        if(canvas.getPathToMotors(n, m) != 0){
                             won = true;
                             break;
                         }
@@ -272,7 +280,7 @@ public class TronGame {
 
                 for(int n = m2x1 - MotorModelOffsetHorizontal; n > m2x0; n--){
                     for(int m = m2y0; m > m2y1; m--){
-                        if(canvas.getPathToMotors(n, m) == 1){
+                        if(canvas.getPathToMotors(n, m) != 0){
                             won = true;
                             break;
                         }
@@ -300,7 +308,7 @@ public class TronGame {
                 // in this case, we will go from the top left end of the motorcycle, since it is moving to the top and collisions are more likely to happen from the top side, rather from the bottom
                 for(int m = m2y1 + MotorModelOffsetVertical; m < m2y0; m++){
                     for(int n = m2x0; n < m2x1; n++){
-                        if(canvas.getPathToMotors(n, m) == 1){
+                        if(canvas.getPathToMotors(n, m) != 0){
                             won = true;
                             break;
                         }
@@ -327,7 +335,7 @@ public class TronGame {
                 // in this case, we will go from the top left end of the motorcycle, since it is moving to the left and collisions are more likely to happen from the left side, rather from the right
                 for(int n = m2x1 + MotorModelOffsetHorizontal-3; n < m2x0; n++){
                     for(int m = m2y1; m < m2y0; m++){
-                        if(canvas.getPathToMotors(n, m) == 1){
+                        if(canvas.getPathToMotors(n, m) != 0){
                             won = true;
                             break;
                         }
@@ -354,7 +362,7 @@ public class TronGame {
                 // in this case, we will go from the bottom left end of the motorcycle, since it is moving to the bottom and collisions are more likely to happen from the bottom left side, rather from the right
                 for(int m = m2y1 - MotorModelOffsetVertical; m > m2y0; m--){
                     for(int n = m2x0; n < m2x1; n++){
-                        if(canvas.getPathToMotors(n, m) == 1){
+                        if(canvas.getPathToMotors(n, m) != 0){
                             won = true;
                             break;
                         }
@@ -477,6 +485,13 @@ public class TronGame {
                 if (m2.getFacing() == 90) return;
                 m2.setFacing(270);
                 break;
+            case Keys.NewGame:
+                // new game has to launch
+                launchGame(p1Name, p2Name);
+            case Keys.BackToMenu:
+                // return back to the menu
+                isGameGoing = false;
+                gui.generateLogin(false);
             default:
                 log("No matching keycode was found for the sent code, exiting..", true);
                 return;

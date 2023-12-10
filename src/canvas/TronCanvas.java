@@ -25,6 +25,9 @@ public class TronCanvas extends JPanel {
     public int getPathToMotors(int x, int y){
         return motorPath[x][y];
     }
+    public void resetMotorPath(){
+        motorPath = new int[UniversalData.getWindowDimension().height][UniversalData.getWindowDimension().width];
+    }
 
     public void paintComponent(Graphics g){
         drawMotors(g, TronGame.m1, TronGame.m2);
