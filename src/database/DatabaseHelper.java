@@ -9,6 +9,8 @@ public class DatabaseHelper {
     private final String database = "trongame";
     private final String table = "winners";
     private Connection conn = null;
+    private boolean canExecute = false;
+    //TODO: execution block while an operation is in progress
 
     private final String sqlUsername = "trongame";
     private final String sqlPassword = "TronGame123";
@@ -83,13 +85,57 @@ public class DatabaseHelper {
         }
 
         log("Database structure checked, queries can be executed.", false);
+        canExecute = true;
+    }
+
+    public void increaseWinningPlayer(String pName) throws DatabaseExecutionException{
+        log("Increasing winning count for '" + pName + "'...", false);
+        if(!canExecute){
+            throwCantExecuteMessage(null);
+            return;
+        }
+        try{
+            Statement stmt = conn.createStatement();
+            String getPointsQuery = "SELECT count(points) as nameCount FROM " + table + " WHERE name='" + pName + "';";
+            ResultSet resultPoints = stmt.executeQuery(getPointsQuery);
+            resultPoints.next();
+            if(resultPoints.getInt("nameCount") == 0){
+                // no row with given user was created previously
+                log("No winnings are yet recorded for user '" + pName + "', creating a row and inserting 1...", false);
+                String insertQuery = "INSERT INTO " + table + " (name, points) VALUES ('" + pName + "', 1);";
+                if(stmt.executeUpdate(insertQuery) > 0){
+                    log("Insert was successfull.", false);
+                }else{
+                    log("Could not insert player into the database.", true);
+                }
+            }else{
+                log("Player is already present in the database, incrementing the winnings accociated to him..", false);
+                String getPoint = "SELECT points FROM " + table + " WHERE name='" + pName + "' LIMIT 1;";
+                ResultSet pointResult = stmt.executeQuery(getPoint);
+                pointResult.next();
+                int point = pointResult.getInt("points");
+
+                String updateQuery = "UPDATE " + table + " SET points=" + (point+1) + " WHERE name='" + pName + "';";
+                if(stmt.executeUpdate(updateQuery) > 0){
+                    log("Successfully incremented winnings from " + point + " to " + (point+1) + " for player '" + pName + "'", false);
+                }else{
+                    log("Could not increment winnings for player '" + pName + "'", false);
+                }
+            }
+        }catch (SQLException e){
+            throwCantExecuteMessage(e.getMessage());
+        }
+
+    }
+    private void throwCantExecuteMessage(String msg) throws DatabaseExecutionException {
+        throw new DatabaseExecutionException("The connection between the database and the game couldn't been established, therefore no queries can be executed." + (msg != null ? " The error message: " + msg : ""));
     }
 
     private void log(String msg, boolean error){
         if(error){
             System.err.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][DB][ERROR] " + msg);
         }else{
-            System.out.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][DB] " + msg);
+            System.out.println("ź[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][DB] " + msg);
         }
 
     }

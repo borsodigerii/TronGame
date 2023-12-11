@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Objects;
 
 public class TronGame {
+    //TODO: make winnings save in the database, and also display them as a scoreboard maybe on the login screen?
     private DatabaseHelper db;
     private MotorcycleColor pOne__color;
     private MotorcycleColor pTwo__color;
@@ -101,12 +102,14 @@ public class TronGame {
             } else if (checkWinning() == 2) {
                 // p2 won
                 log("The game ended, result is p2 winning", false);
+                db.increaseWinningPlayer(p2Name);
                 gui.generateWinningScreen(p2Name);
                 isGameGoing = false;
                 return;
             } else if (checkWinning() == 1) {
                 // p1 won
                 log("The game ended, result is p1 winning", false);
+                db.increaseWinningPlayer(p1Name);
                 gui.generateWinningScreen(p1Name);
                 isGameGoing = false;
                 return;
@@ -488,10 +491,13 @@ public class TronGame {
             case Keys.NewGame:
                 // new game has to launch
                 launchGame(p1Name, p2Name);
+                break;
             case Keys.BackToMenu:
                 // return back to the menu
+                //TODO: only allow back to menu if game has started and countdown has ended
                 isGameGoing = false;
                 gui.generateLogin(false);
+                break;
             default:
                 log("No matching keycode was found for the sent code, exiting..", true);
                 return;
