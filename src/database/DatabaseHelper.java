@@ -1,13 +1,17 @@
 package database;
 
+import utils.Score;
+
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHelper {
-    private final String hostname = "localhost";
-    private final int port = 3306;
-    private final String database = "trongame";
-    private final String table = "winners";
+    private static final String hostname = "localhost";
+    private static final int port = 3306;
+    private static final String database = "trongame";
+    private static final String table = "winners";
     private Connection conn = null;
     private boolean canExecute = false;
     //TODO: execution block while an operation is in progress
@@ -59,7 +63,7 @@ public class DatabaseHelper {
                     log("Table '" + table + "' does exist", false);
                 }catch (SQLException e){
                     if(e.getErrorCode() == 1146){
-                        // table does not exists
+                        // table does not exist
                         log("Table '" + table + "' does not exists, creating it..", false);
                         try{
                             Statement stmt = conn.createStatement();
@@ -127,15 +131,41 @@ public class DatabaseHelper {
         }
 
     }
+
+    public List<Score> getScores(){
+        log("Retrieving the scoreboard serialized data..", false);
+        if(!canExecute){
+            throwCantExecuteMessage(null);
+            return null;
+        }
+
+        try{
+            List<Score> scoreList = new ArrayList<Score>();
+            Statement stmt = conn.createStatement();
+            String query = "SELECT name, points FROM " + table + " ORDER BY points DESC;";
+            ResultSet results = stmt.executeQuery(query);
+            while(results.next()){
+                scoreList.add(new Score(results.getString("name"), results.getInt("points")));
+            }
+            return scoreList;
+        }catch (SQLException e){
+            throwCantExecuteMessage(e.getMessage());
+            return null;
+        }
+    }
+
+
+
+
+
     private void throwCantExecuteMessage(String msg) throws DatabaseExecutionException {
         throw new DatabaseExecutionException("The connection between the database and the game couldn't been established, therefore no queries can be executed." + (msg != null ? " The error message: " + msg : ""));
     }
-
     private void log(String msg, boolean error){
         if(error){
             System.err.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][DB][ERROR] " + msg);
         }else{
-            System.out.println("ź[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][DB] " + msg);
+            System.out.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][DB] " + msg);
         }
 
     }

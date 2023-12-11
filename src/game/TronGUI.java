@@ -5,14 +5,19 @@ import canvas.TronCanvas;
 import canvas.TronCountDown;
 import canvas.TronWin;
 import database.DatabaseException;
+import motorcycle.MotorcycleColor;
+import utils.Score;
+import utils.ScoreBoardTableModel;
 import utils.UniversalData;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Objects;
 
 public class TronGUI{
@@ -24,7 +29,9 @@ public class TronGUI{
     private TronGame game;
 
     JTextField playerOneInput = new JTextField();
+    JComboBox<String> playerOneColor = new JComboBox<String>();
     JTextField playerTwoInput = new JTextField();
+    JComboBox<String> playerTwoColor = new JComboBox<String>();
 
     //private static Dimension windowDimension = new Dimension(600, 600);
 
@@ -36,11 +43,11 @@ public class TronGUI{
             return;
         }
 
-        generateLogin(false);
+        generateLogin(false, false);
 
     }
 
-    public void generateLogin(boolean emptyInput){
+    public void generateLogin(boolean emptyInput, boolean incorrectColors){
         log("Generating login screen..", false);
         if(window != null){
             window.setVisible(false);
@@ -61,18 +68,42 @@ public class TronGUI{
         mainContent.setLayout(new FlowLayout(FlowLayout.CENTER));
         loginpanel.setLayout(new BoxLayout(loginpanel, BoxLayout.Y_AXIS));
         loginpanel.setAlignmentY(Component.CENTER_ALIGNMENT);
+        loginpanel.setBorder(new EmptyBorder(0, 0, 0, 0));
         JLabel gameTitle = new JLabel("TRON GAME");
-        gameTitle.setFont(new Font("Arial", Font.BOLD, 20));
+        gameTitle.setFont(new Font("Arial", Font.BOLD, 40));
         //gameTitle.setPreferredSize(new Dimension(600, 50));
         gameTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel loginDesc = new JLabel("For the game to start, specify the two player names:");
+        JLabel loginDesc = new JLabel("For the game to start, specify the two player names and their colors:");
         loginDesc.setAlignmentX(Component.CENTER_ALIGNMENT);
-        playerOneInput = new JTextField();
+
+        String[] possibleColors = new String[MotorcycleColor.values.length];
+        int count = 0;
+        for (MotorcycleColor value : MotorcycleColor.values) {
+            possibleColors[count++] = value.displayName;
+        }
+        JPanel inputs = new JPanel();
+        inputs.setLayout(new BoxLayout(inputs, BoxLayout.Y_AXIS));
+        JPanel playerOneInputs = new JPanel(new FlowLayout());
+
+        playerOneInput = new JTextField(playerOneInput.getText());
         playerOneInput.setAlignmentX(Component.CENTER_ALIGNMENT);
+        playerOneInput.setPreferredSize(new Dimension(200, 30));
+        playerOneColor = new JComboBox<String>(possibleColors);
+        playerOneColor.setSelectedIndex(1);
+        playerOneInputs.add(playerOneInput);
+        playerOneInputs.add(playerOneColor);
+        playerOneInputs.setPreferredSize(new Dimension(UniversalData.getWindowDimension().width, 40));
 
         //playerOneInput.setPreferredSize(new Dimension(400, 50));
-        playerTwoInput = new JTextField();
+        JPanel playerTwoInputs = new JPanel(new FlowLayout());
+        playerTwoInput = new JTextField(playerTwoInput.getText());
         playerTwoInput.setAlignmentX(Component.CENTER_ALIGNMENT);
+        playerTwoInput.setPreferredSize(new Dimension(200, 30));
+        playerTwoColor = new JComboBox<String>(possibleColors);
+        playerTwoInputs.add(playerTwoInput);
+        playerTwoInputs.add(playerTwoColor);
+        playerTwoInputs.setPreferredSize(new Dimension(UniversalData.getWindowDimension().width, 40));
+
         JButton startGame = new JButton();
         startGame.setAction(new AbstractAction() {
             @Override
@@ -83,10 +114,14 @@ public class TronGUI{
         startGame.setText("Start game!");
         startGame.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        inputs.add(playerOneInputs);
+        inputs.add(playerTwoInputs);
+        inputs.setPreferredSize(new Dimension(UniversalData.getWindowDimension().width, 80));
         loginpanel.add(gameTitle);
         loginpanel.add(loginDesc);
-        loginpanel.add(playerOneInput);
-        loginpanel.add(playerTwoInput);
+        /*loginpanel.add(playerTwoInputs);
+        loginpanel.add(playerTwoInputs);*/
+        loginpanel.add(inputs);
         loginpanel.add(startGame);
 
         if(emptyInput){
@@ -96,7 +131,38 @@ public class TronGUI{
             errorText.setBackground(new Color(255, 200, 200));
             errorText.setAlignmentX(Component.CENTER_ALIGNMENT);
             loginpanel.add(errorText);
+        }else if(incorrectColors){
+            JLabel errorText = new JLabel("The two selected colors cannot be the same");
+            errorText.setFont(new Font("Arial", Font.PLAIN, 15));
+            errorText.setOpaque(true);
+            errorText.setBackground(new Color(255, 200, 200));
+            errorText.setAlignmentX(Component.CENTER_ALIGNMENT);
+            loginpanel.add(errorText);
         }
+
+
+
+        JPanel scoresPanel = new JPanel();
+        scoresPanel.setLayout(new BoxLayout(scoresPanel, BoxLayout.Y_AXIS));
+        scoresPanel.setAlignmentY(Component.CENTER_ALIGNMENT);
+        JLabel scoreTitle = new JLabel("Scoreboard");
+        scoreTitle.setFont(new Font("Arial", Font.BOLD, 25));
+        scoreTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        scoresPanel.add(scoreTitle);
+
+        List<Score> scores = game.getScoreBoardData();
+        JTable scoreBoard = new JTable(new ScoreBoardTableModel(scores));
+        scoreBoard.setFont(new Font("Arial", Font.PLAIN, 20));
+        scoreBoard.setRowHeight(30);
+        scoreBoard.setRowSelectionAllowed(false);
+        scoreBoard.setShowHorizontalLines(true);
+        scoreBoard.getTableHeader().setFont(new Font("Arial", Font.BOLD, 20));
+        JScrollPane scrollPane = new JScrollPane(scoreBoard);
+        scoreBoard.setFillsViewportHeight(true);
+        scoresPanel.setBorder(new EmptyBorder(50, 0, 0, 0));
+        scoresPanel.add(scrollPane);
+        loginpanel.add(scoresPanel);
+
         mainContent.add(loginpanel);
         window.add(mainContent);
         window.setPreferredSize(UniversalData.getWindowDimension());
@@ -108,11 +174,17 @@ public class TronGUI{
     private void startGame(){
         if(Objects.equals(playerOneInput.getText(), "") || Objects.equals(playerTwoInput.getText(), "")){
             log("One or both of the player's names were empty. Re-displaying the login screen", true);
-            generateLogin(true);
+            generateLogin(true, false);
+            return;
+        }
+        if(Objects.equals(playerOneColor.getSelectedItem(), playerTwoColor.getSelectedItem())){
+            // same color selected
+            log("The two selected colors cannot be the same", true);
+            generateLogin(false, true);
             return;
         }
         log("Two names specified, launching game...", false);
-        game.launchGame(playerOneInput.getText(), playerTwoInput.getText());
+        game.launchGame(playerOneInput.getText(), playerTwoInput.getText(), MotorcycleColor.getColorByName((String) playerOneColor.getSelectedItem()), MotorcycleColor.getColorByName((String) playerTwoColor.getSelectedItem()));
     }
     public void generateGameSpace(TronCanvas canv, TronBackground canvBack, Runnable gameLaunchLogicFunction, TronGame game) {
         log("Generating game space..", false);
@@ -173,7 +245,6 @@ public class TronGUI{
     }
 
     public void generateWinningScreen(String winningPlayer){
-        //TODO: befejezni
         if(Objects.equals(winningPlayer, null)){
             // draw
             winningScreen.setDraw(true);

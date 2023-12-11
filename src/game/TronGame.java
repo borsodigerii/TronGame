@@ -7,17 +7,16 @@ import database.DatabaseHelper;
 import motorcycle.MotorCyclePosition;
 import motorcycle.MotorcycleColor;
 import utils.Keys;
+import utils.Score;
 import utils.UniversalData;
 
-import javax.imageio.ImageIO;
 import java.text.SimpleDateFormat;
-import java.util.Objects;
+import java.util.List;
 
 public class TronGame {
-    //TODO: make winnings save in the database, and also display them as a scoreboard maybe on the login screen?
-    private DatabaseHelper db;
-    private MotorcycleColor pOne__color;
-    private MotorcycleColor pTwo__color;
+    private final DatabaseHelper db;
+    public static MotorcycleColor pOne__color;
+    public static MotorcycleColor pTwo__color;
     private boolean isGameGoing = false;
 
     private String p1Name;
@@ -28,9 +27,8 @@ public class TronGame {
 
     public static final int MotorModelOffsetHorizontal = 7;
     public static final int MotorModelOffsetVertical = 5;
-    private TronGUI gui;
+    private final TronGUI gui;
     private TronCanvas canvas;
-    private TronBackground canvasBack;
 
     public TronGame(TronGUI gui) throws DatabaseException {
         db = new DatabaseHelper();
@@ -38,12 +36,14 @@ public class TronGame {
         this.gui = gui;
     }
 
-    public void launchGame(String p1, String p2) {
+    public void launchGame(String p1, String p2, MotorcycleColor p1Color, MotorcycleColor p2Color) {
         isGameGoing = false;
         m1 = new MotorCyclePosition(50, UniversalData.getWindowDimension().height - 200, 90);
         m2 = new MotorCyclePosition(UniversalData.getWindowDimension().width - 100, 50, 270);
+        pOne__color = p1Color;
+        pTwo__color = p2Color;
         canvas = new TronCanvas();
-        canvasBack = new TronBackground();
+        TronBackground canvasBack = new TronBackground();
         canvas.resetMotorPath();
         gui.generateGameSpace(canvas, canvasBack, this::gameLaunched, this);
         p1Name = p1;
@@ -130,8 +130,8 @@ public class TronGame {
         boolean draw = false;
         boolean p1Won = false;
         boolean p2Won = false;
+        boolean outOfFrame = false;
         //TODO: optimalization: it would be enough to check the margin/outer 1-2px's of the motor for collision, and not the whole motor body
-
         int m1x0, m1x1, m1y0, m1y1, m2x0, m2x1, m2y0, m2y1, width, height;
         // mNx0 - starting coordinate, x tag
         // mNy0 - starting coordinate, y tag
@@ -148,7 +148,6 @@ public class TronGame {
         // in the following codes, a MotorModelOffset is used to determine some outer bounds, because the model is not exactly sized down to the exact sizes of the motor, and some empty spacing is left around it. Without the offset, the game would sense a collision, while visually the line and the motor model did not in fact reached each other
         switch (m1.getFacing()){
             case 0:
-
                 width = UniversalData.getMotorHeight();
                 height = UniversalData.getMotorWidth();
                 // based on the following line, we calculate the motor's drawn dimensions, and check if any colored pixel is inside of these dimensions
@@ -158,6 +157,12 @@ public class TronGame {
                 //---
                 m1x1 = m1x0 + width;
                 m1y1 = m1y0 - height;
+
+                if(isMotorOutOfFrame(m1x0, m1y0, m1x1, m1y1)){
+                    p2Won = true;
+                    outOfFrame = true;
+                    break;
+                }
 
                 // any colored pixel that is inside the rectangle of (m1x0,m1y0)-(m1x1,m1y1) is considered a collision
                 // in this case, we will go from the top right end of the motorcycle, since it is moving to the right and collisions are more likely to happen from the right side, rather from the left
@@ -188,6 +193,12 @@ public class TronGame {
                 m1x1 = m1x0 + width;
                 m1y1 = m1y0 - height;
 
+                if(isMotorOutOfFrame(m1x0, m1y0, m1x1, m1y1)){
+                    p2Won = true;
+                    outOfFrame = true;
+                    break;
+                }
+
                 // any colored pixel that is inside the rectangle of (m1x0,m1y0)-(m1x1,m1y1) is considered a collision
                 // in this case, we will go from the top left end of the motorcycle, since it is moving to the top and collisions are more likely to happen from the top side, rather from the bottom
                 for(int m = m1y1 + MotorModelOffsetVertical; m < m1y0; m++){
@@ -214,6 +225,12 @@ public class TronGame {
                 //---
                 m1x1 = m1x0 - width;
                 m1y1 = m1y0 - height;
+
+                if(isMotorOutOfFrame(m1x0, m1y0, m1x1, m1y1)){
+                    p2Won = true;
+                    outOfFrame = true;
+                    break;
+                }
 
                 // any colored pixel that is inside the rectangle of (m1x0,m1y0)-(m1x1,m1y1) is considered a collision
                 // in this case, we will go from the top left end of the motorcycle, since it is moving to the left and collisions are more likely to happen from the left side, rather from the right
@@ -242,6 +259,14 @@ public class TronGame {
                 //---
                 m1x1 = m1x0 + width;
                 m1y1 = m1y0 + height;
+
+                if(isMotorOutOfFrame(m1x0, m1y0, m1x1, m1y1)){
+                    p2Won = true;
+                    outOfFrame = true;
+                    break;
+                }
+
+
                 // any colored pixel that is inside the rectangle of (m1x0,m1y0)-(m1x1,m1y1) is considered a collision
                 // in this case, we will go from the bottom left end of the motorcycle, since it is moving to the bottom and collisions are more likely to happen from the bottom left side, rather from the right
                 for(int m = m1y1 - MotorModelOffsetVertical; m > m1y0; m--){
@@ -278,6 +303,12 @@ public class TronGame {
                 m2x1 = m2x0 + width;
                 m2y1 = m2y0 - height;
 
+                if(isMotorOutOfFrame(m2x0, m2y0, m2x1, m2y1)){
+                    p1Won = true;
+                    outOfFrame = true;
+                    break;
+                }
+
                 // any colored pixel that is inside the rectangle of (m1x0,m1y0)-(m1x1,m1y1) is considered a collision
                 // in this case, we will go from the top right end of the motorcycle, since it is moving to the right and collisions are more likely to happen from the right side, rather from the left
 
@@ -307,6 +338,12 @@ public class TronGame {
                 m2x1 = m2x0 + width;
                 m2y1 = m2y0 - height;
 
+                if(isMotorOutOfFrame(m2x0, m2y0, m2x1, m2y1)){
+                    p1Won = true;
+                    outOfFrame = true;
+                    break;
+                }
+
                 // any colored pixel that is inside the rectangle of (m1x0,m1y0)-(m1x1,m1y1) is considered a collision
                 // in this case, we will go from the top left end of the motorcycle, since it is moving to the top and collisions are more likely to happen from the top side, rather from the bottom
                 for(int m = m2y1 + MotorModelOffsetVertical; m < m2y0; m++){
@@ -333,6 +370,12 @@ public class TronGame {
                 //---
                 m2x1 = m2x0 - width;
                 m2y1 = m2y0 - height;
+
+                if(isMotorOutOfFrame(m2x0, m2y0, m2x1, m2y1)){
+                    p1Won = true;
+                    outOfFrame = true;
+                    break;
+                }
 
                 // any colored pixel that is inside the rectangle of (m1x0,m1y0)-(m1x1,m1y1) is considered a collision
                 // in this case, we will go from the top left end of the motorcycle, since it is moving to the left and collisions are more likely to happen from the left side, rather from the right
@@ -361,6 +404,14 @@ public class TronGame {
                 //---
                 m2x1 = m2x0 + width;
                 m2y1 = m2y0 + height;
+
+                if(isMotorOutOfFrame(m2x0, m2y0, m2x1, m2y1)){
+                    p1Won = true;
+                    outOfFrame = true;
+                    break;
+                }
+
+
                 // any colored pixel that is inside the rectangle of (m1x0,m1y0)-(m1x1,m1y1) is considered a collision
                 // in this case, we will go from the bottom left end of the motorcycle, since it is moving to the bottom and collisions are more likely to happen from the bottom left side, rather from the right
                 for(int m = m2y1 - MotorModelOffsetVertical; m > m2y0; m--){
@@ -381,7 +432,30 @@ public class TronGame {
         }
 
 
+        if(!outOfFrame){
+            draw = areMotorsCollided(m1x0, m1x1, m1y0, m1y1, m2x0, m2x1, m2y0, m2y1);
+        }
+
+
+        if ((p1Won && p2Won) || draw) {
+            // a scenario where they both crossed eachothers line in the same gamecycle, or both is out of frame at the same time; means draw
+            // or simply their coordinates are the same, meaning they collided the same time as motors, means draw
+            return 3;
+        }
+        if (p1Won) {
+            return 1;
+        } else if (p2Won) {
+            return 2;
+        }
+
+        return 0;
+    }
+    private boolean isMotorOutOfFrame(int x0, int y0, int x1, int y1){
+        return (x0 < 0 || x0 >= UniversalData.getWindowDimension().width || x1 < 0 || x1 >= UniversalData.getWindowDimension().width || y0 < 0 || y0 >= UniversalData.getWindowDimension().height || y1 < 0 || y1 >= UniversalData.getWindowDimension().height);
+    }
+    private boolean areMotorsCollided(int m1x0, int m1x1, int m1y0, int m1y1, int m2x0, int m2x1, int m2y0, int m2y1){
         // base motor collide checker
+        boolean collided = false;
         int bm1x0 = Math.min(m1x0, m1x1) + MotorModelOffsetHorizontal;
         int bm1x1 = Math.max(m1x0, m1x1) - MotorModelOffsetHorizontal;
         int bm1y0 = Math.min(m1y0, m1y1) + MotorModelOffsetVertical;
@@ -394,57 +468,25 @@ public class TronGame {
         // motor 1 loop
         for(int n1 = bm1x0; n1 < bm1x1; n1++){
             // only check the boundaries, no need to check the inner motor
-            //if(n1 > bm1x0 && n1 < (bm1x1-1)) continue;
             for(int m1 = bm1y0; m1 < bm1y1; m1++){
                 // motor2 loop
                 if(n1 != bm1x0 && n1 != (bm1x1-1) && m1 > bm1y0 && m1 < (bm1y1-1)) continue;
-                //canvas.addPathToMotors(1, n1, m1);
                 for(int n2 = bm2x0; n2 < bm2x1; n2++){
-                    //if(n2 > bm2x0 && n2 < (bm2x1-1)) continue;
                     for(int m2 = bm2y0; m2 < bm2y1; m2++){
                         if(n2 != bm2x0 && n2 != (bm2x1-1) && m2 > bm2y0 && m2 < (bm2y1-1)) continue;
-                        //canvas.addPathToMotors(2, n2, m2);
                         if(n1 == n2 && m1 == m2){
-                            draw = true;
+                            collided = true;
                             break;
                         }
-                        if(draw) break;
+                        if(collided) break;
                     }
                 }
-                if(draw) break;
+                if(collided) break;
             }
-            if(draw) break;
+            if(collided) break;
         }
-
-
-        /*if (m1.getX() == m2.getX() && m2.getY() == m1.getY()) {
-            // draw, since they both reached each other first
-            draw = true;
-        }
-        if (canvas.getPathToMotors(m1.getX(), m1.getY()) == 2) {
-            // m1 ran through m2's line ===> m2 won
-            p2Won = true;
-        }
-        if (canvas.getPathToMotors(m2.getX(), m2.getY()) == 1) {
-            // m2 ran through m1's line ===> m1 won
-            p1Won = true;
-        }*/
-
-        if ((p1Won && p2Won) || draw) {
-        //if (p1Won && p2Won) {
-            // a scenario where they both crossed eachothers line in the same gamecycle, means draw
-            // or simply their coordinates are the same, meaning they collided the same time as motors, means draw
-            return 3;
-        }
-        if (p1Won) {
-            return 1;
-        } else if (p2Won) {
-            return 2;
-        }
-
-        return 0;
+        return collided;
     }
-
     public void handleKeyPress(int keycode) {
         switch (keycode) {
             case Keys.A:
@@ -490,18 +532,27 @@ public class TronGame {
                 break;
             case Keys.NewGame:
                 // new game has to launch
-                launchGame(p1Name, p2Name);
+                if(isGameGoing){
+                    log("Back to menu button pressed, stopping game and returning to menu..", false);
+                    launchGame(p1Name, p2Name, pOne__color, pTwo__color);
+                }
                 break;
             case Keys.BackToMenu:
                 // return back to the menu
-                //TODO: only allow back to menu if game has started and countdown has ended
-                isGameGoing = false;
-                gui.generateLogin(false);
+                if(isGameGoing) {
+                    log("New game button pressed, stopping game and starting a new one..", false);
+                    isGameGoing = false;
+                    gui.generateLogin(false, false);
+                }
                 break;
             default:
                 log("No matching keycode was found for the sent code, exiting..", true);
                 return;
         }
+    }
+
+    public List<Score> getScoreBoardData(){
+        return db.getScores();
     }
 
     private void log(String msg, boolean error) {
