@@ -5,6 +5,7 @@ import java.awt.*;
 public class UniversalData {
     private final static Dimension windowDimension = new Dimension(700, 700);
     private final static int gameCycle = 50;
+    private final static int motorSteps = 5;
 
     private final static int motorWidth = 50;
     private final static int motorHeight = 100;
@@ -24,5 +25,8 @@ public class UniversalData {
     }
     public static int getMotorHeight(){
         return motorHeight;
+    }
+    public static int getMotorSteps(){
+        return motorSteps;
     }
 }

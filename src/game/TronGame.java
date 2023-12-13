@@ -63,36 +63,17 @@ public class TronGame {
 
     private void gameCycle() {
         setTimeout(() -> {
-            // Orientation and deciding
-            int m1x = m1.getX();
-            int m1y = m1.getY();
-            int m2x = m2.getX();
-            int m2y = m2.getY();
+            // cos(0) = 1  ----  0deg
+            // sin(0) = 0
+            //---
+            // cos(pi/2) = 0 --  90deg
+            // sin(pi/2) = 1
 
+            m1.setX(m1.getX() + ((int)Math.cos(Math.toRadians(m1.getFacing())) * UniversalData.getMotorSteps()));
+            m1.setY(m1.getY() - ((int)Math.sin(Math.toRadians(m1.getFacing())) * UniversalData.getMotorSteps()));
 
-            //m1
-            if (m1.getFacing() == 0) {
-                m1.setX(m1.getX() + 5);
-            } else if (m1.getFacing() == 90) {
-                m1.setY(m1.getY() - 5);
-            } else if (m1.getFacing() == 180) {
-                m1.setX(m1.getX() - 5);
-            } else if (m1.getFacing() == 270) {
-                m1.setY(m1.getY() + 5);
-            }
-
-
-            //m2
-            if (m2.getFacing() == 0) {
-                m2.setX(m2.getX() + 5);
-            } else if (m2.getFacing() == 90) {
-                m2.setY(m2.getY() - 5);
-            } else if (m2.getFacing() == 180) {
-                m2.setX(m2.getX() - 5);
-            } else if (m2.getFacing() == 270) {
-                m2.setY(m2.getY() + 5);
-            }
-
+            m2.setX(m2.getX() + ((int)Math.cos(Math.toRadians(m2.getFacing())) * UniversalData.getMotorSteps()));
+            m2.setY(m2.getY() - ((int)Math.sin(Math.toRadians(m2.getFacing())) * UniversalData.getMotorSteps()));
 
             if (checkWinning() == 3) {
                 // draw
