@@ -18,6 +18,7 @@ public class TronGame {
     public static MotorcycleColor pOne__color;
     public static MotorcycleColor pTwo__color;
     private boolean isGameGoing = false;
+    private boolean isCountdown = false;
 
     private String p1Name;
     private String p2Name;
@@ -45,6 +46,7 @@ public class TronGame {
         canvas = new TronCanvas();
         TronBackground canvasBack = new TronBackground();
         canvas.resetMotorPath();
+        isCountdown = true;
         gui.generateGameSpace(canvas, canvasBack, this::gameLaunched, this);
         p1Name = p1;
         p2Name = p2;
@@ -52,6 +54,7 @@ public class TronGame {
 
     public void gameLaunched() {
         log("Game started", false);
+        isCountdown = false;
         m1 = new MotorCyclePosition(50, canvas.getHeight() - 200, 90);
         m2 = new MotorCyclePosition(canvas.getWidth() - 100, 50, 270);
         isGameGoing = true;
@@ -90,8 +93,6 @@ public class TronGame {
                 m2.setY(m2.getY() + 5);
             }
 
-           /*canvas.addPathToMotors(1, m1x, m1y);
-           canvas.addPathToMotors(2, m2x, m2y);*/
 
             if (checkWinning() == 3) {
                 // draw
@@ -153,7 +154,7 @@ public class TronGame {
                 // based on the following line, we calculate the motor's drawn dimensions, and check if any colored pixel is inside of these dimensions
                 // g.drawImage(motor1, m1Pos.getX(), m1Pos.getY() + (width/4), width, -height, this);
                 m1x0 = m1.getX();
-                m1y0 = m1.getY() + (width/4);
+                m1y0 = m1.getY() + (height/2);
                 //---
                 m1x1 = m1x0 + width;
                 m1y1 = m1y0 - height;
@@ -221,7 +222,7 @@ public class TronGame {
                 // g.drawImage(motor1, m1Pos.getX(), m1Pos.getY()+(width/4), -width, -height, this);
 
                 m1x0 = m1.getX();
-                m1y0 = m1.getY() + (width/4);
+                m1y0 = m1.getY() + (height/2);
                 //---
                 m1x1 = m1x0 - width;
                 m1y1 = m1y0 - height;
@@ -298,7 +299,7 @@ public class TronGame {
                 // based on the following line, we calculate the motor's drawn dimensions, and check if any colored pixel is inside of these dimensions
                 // g.drawImage(motor1, m1Pos.getX(), m1Pos.getY() + (width/4), width, -height, this);
                 m2x0 = m2.getX();
-                m2y0 = m2.getY() + (width/4);
+                m2y0 = m2.getY() + (height/2);
                 //---
                 m2x1 = m2x0 + width;
                 m2y1 = m2y0 - height;
@@ -366,7 +367,7 @@ public class TronGame {
                 // g.drawImage(motor1, m1Pos.getX(), m1Pos.getY()+(width/4), -width, -height, this);
 
                 m2x0 = m2.getX();
-                m2y0 = m2.getY() + (width/4);
+                m2y0 = m2.getY() + (height/2);
                 //---
                 m2x1 = m2x0 - width;
                 m2y1 = m2y0 - height;
@@ -532,14 +533,15 @@ public class TronGame {
                 break;
             case Keys.NewGame:
                 // new game has to launch
-                if(isGameGoing){
+                
+                if(!isCountdown){
                     log("Back to menu button pressed, stopping game and returning to menu..", false);
                     launchGame(p1Name, p2Name, pOne__color, pTwo__color);
                 }
                 break;
             case Keys.BackToMenu:
                 // return back to the menu
-                if(isGameGoing) {
+                if(!isCountdown) {
                     log("New game button pressed, stopping game and starting a new one..", false);
                     isGameGoing = false;
                     gui.generateLogin(false, false);

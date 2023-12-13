@@ -125,7 +125,7 @@ public class TronGUI{
         loginpanel.add(startGame);
 
         if(emptyInput){
-            JLabel errorText = new JLabel("One or both of the playernames were empty.");
+            JLabel errorText = new JLabel("One or both of the playernames were empty / the two names were the same.");
             errorText.setFont(new Font("Arial", Font.PLAIN, 15));
             errorText.setOpaque(true);
             errorText.setBackground(new Color(255, 200, 200));
@@ -172,7 +172,7 @@ public class TronGUI{
     }
 
     private void startGame(){
-        if(Objects.equals(playerOneInput.getText(), "") || Objects.equals(playerTwoInput.getText(), "")){
+        if(Objects.equals(playerOneInput.getText(), "") || Objects.equals(playerTwoInput.getText(), "") || Objects.equals(playerOneInput.getText(), playerTwoInput.getText())){
             log("One or both of the player's names were empty. Re-displaying the login screen", true);
             generateLogin(true, false);
             return;

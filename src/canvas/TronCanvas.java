@@ -36,64 +36,97 @@ public class TronCanvas extends JPanel {
 
     private void drawMotors(Graphics g, MotorCyclePosition m1Pos, MotorCyclePosition m2Pos) {
         try{
-            int width, height;
+            int width, height, width2, height2;
+            // cos(0) = 1  ----  0deg
+            // sin(0) = 0
+            //---
+            // cos(pi/2) = 0 --  90deg
+            // sin(pi/2) = 1
+
             switch (m1Pos.getFacing()){
                 case 0:
                     width = UniversalData.getMotorHeight();
                     height = UniversalData.getMotorWidth();
+                    width2 = width;
+                    height2 = -1 * height;
                     motor1 = rotateClockwise90(rotateClockwise90(ImageIO.read(Objects.requireNonNull(getClass().getResource("/tronBikeBlue.png")))));
-                    g.drawImage(motor1, m1Pos.getX(), m1Pos.getY() + (width/4), width, -height, this);
+                    //g.drawImage(motor1, m1Pos.getX(), m1Pos.getY() + (height/2), width, -height, this);
                     break;
                 case 90:
                     width = UniversalData.getMotorWidth();
                     height = UniversalData.getMotorHeight();
-
+                    width2 = width;
+                    height2 = height * -1;
                     motor1 = rotateClockwise90(ImageIO.read(Objects.requireNonNull(getClass().getResource("/tronBikeBlue.png"))));
-                    g.drawImage(motor1, m1Pos.getX()-(width/2) + 4, m1Pos.getY(), width, -height, this);
+                    //g.drawImage(motor1, m1Pos.getX()-(width/2) + 4, m1Pos.getY(), width, -height, this);
                     break;
                 case 180:
                     width = UniversalData.getMotorHeight();
                     height = UniversalData.getMotorWidth();
+                    width2 = width * -1;
+                    height2 = height * -1;
                     motor1 = ImageIO.read(Objects.requireNonNull(getClass().getResource("/tronBikeBlue.png")));
-                    g.drawImage(motor1, m1Pos.getX(), m1Pos.getY()+(width/4), -width, -height, this);
+                    //g.drawImage(motor1, m1Pos.getX(), m1Pos.getY()+(height/2), -width, -height, this);
                     break;
                 case 270:
                     width = UniversalData.getMotorWidth();
                     height = UniversalData.getMotorHeight();
+                    width2 = UniversalData.getMotorWidth();
+                    height2 = UniversalData.getMotorHeight();
                     motor1 = rotateClockwise90(rotateClockwise90(rotateClockwise90(ImageIO.read(Objects.requireNonNull(getClass().getResource("/tronBikeBlue.png"))))));
-                    g.drawImage(motor1, m1Pos.getX()-(width/2), m1Pos.getY(), width, height, this);
+                    //g.drawImage(motor1, m1Pos.getX()-(width/2), m1Pos.getY(), width, height, this);
+                    break;
+                default:
+                    width = UniversalData.getMotorWidth();
+                    height = UniversalData.getMotorHeight();
+                    width2 = UniversalData.getMotorWidth();
+                    height2 = UniversalData.getMotorHeight();
                     break;
             }
-
+            g.drawImage(motor1, m1Pos.getX() - ((int)Math.abs(Math.sin(Math.toRadians(m1Pos.getFacing()))) * (width/2)), m1Pos.getY() + ((int)Math.abs(Math.cos(Math.toRadians(m1Pos.getFacing()))) * (height/2)), width2, height2, this);
 
 
             switch (m2Pos.getFacing()){
                 case 0:
                     width = UniversalData.getMotorHeight();
                     height = UniversalData.getMotorWidth();
+                    width2 = width;
+                    height2 = -1 * height;
                     motor2 = rotateClockwise90(rotateClockwise90(ImageIO.read(Objects.requireNonNull(getClass().getResource("/tronBikeYellow.png")))));
-                    g.drawImage(motor2, m2Pos.getX(), m2Pos.getY() + (width/4), width, -height, this);
+                    //g.drawImage(motor2, m2Pos.getX(), m2Pos.getY() + (height/2), width, -height, this);
                     break;
                 case 90:
                     width = UniversalData.getMotorWidth();
                     height = UniversalData.getMotorHeight();
-
+                    width2 = width;
+                    height2 = height * -1;
                     motor2 = rotateClockwise90(ImageIO.read(Objects.requireNonNull(getClass().getResource("/tronBikeYellow.png"))));
-                    g.drawImage(motor2, m2Pos.getX()-(width/2) + 4, m2Pos.getY(), width, -height, this);
+                    //g.drawImage(motor2, m2Pos.getX()-(width/2) + 4, m2Pos.getY(), width, -height, this);
                     break;
                 case 180:
                     width = UniversalData.getMotorHeight();
                     height = UniversalData.getMotorWidth();
+                    width2 = width * -1;
+                    height2 = height * -1;
                     motor2 = ImageIO.read(Objects.requireNonNull(getClass().getResource("/tronBikeYellow.png")));
-                    g.drawImage(motor2, m2Pos.getX(), m2Pos.getY()+(width/4), -width, -height, this);
+                    //g.drawImage(motor2, m2Pos.getX(), m2Pos.getY()+(height/2), -width, -height, this);
                     break;
                 case 270:
                     width = UniversalData.getMotorWidth();
                     height = UniversalData.getMotorHeight();
+                    width2 = UniversalData.getMotorWidth();
+                    height2 = UniversalData.getMotorHeight();
                     motor2 = rotateClockwise90(rotateClockwise90(rotateClockwise90(ImageIO.read(Objects.requireNonNull(getClass().getResource("/tronBikeYellow.png"))))));
-                    g.drawImage(motor2, m2Pos.getX()-(width/2), m2Pos.getY(), width, height, this);
+                    //g.drawImage(motor2, m2Pos.getX()-(width/2), m2Pos.getY(), width, height, this);
+                    break;
+                default:
+                    width = UniversalData.getMotorWidth();
+                    height = UniversalData.getMotorHeight();
+                    width2 = UniversalData.getMotorWidth();
+                    height2 = UniversalData.getMotorHeight();
                     break;
             }
+            g.drawImage(motor2, m2Pos.getX() - ((int)Math.abs(Math.sin(Math.toRadians(m2Pos.getFacing()))) * (width/2)), m2Pos.getY() + ((int)Math.abs(Math.cos(Math.toRadians(m2Pos.getFacing()))) * (height/2)), width2, height2, this);
         }catch (IOException e){
             log("Could not open motor models for reading.", true);
         }
@@ -106,10 +139,10 @@ public class TronCanvas extends JPanel {
             for(int f = 0; f < UniversalData.getWindowDimension().width; f++){
                 if(motorPath[i][f] == 1){
                     g.setColor(TronGame.pOne__color.color);
-                    g.fillRect(i, f, 4, 4);
+                    g.fillRect(i-2, f-2, 4, 4);
                 }else if(motorPath[i][f] == 2){
                     g.setColor(TronGame.pTwo__color.color);
-                    g.fillRect(i, f, 4, 4);
+                    g.fillRect(i-2, f-2, 4, 4);
                 }
             }
         }
