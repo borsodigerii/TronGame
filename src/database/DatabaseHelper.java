@@ -8,18 +8,60 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseHelper {
+
+    /**
+     * The hostname used for database connection
+     */
     private static final String hostname = "localhost";
+
+
+    /**
+     * The port used for database connection
+     */
     private static final int port = 3306;
+
+
+    /**
+     * The database-name used for the connection
+     */
     private static final String database = "trongame";
+
+
+    /**
+     * The table used for storing the winning counts
+     */
     private static final String table = "winners";
+
+
+    /**
+     * The connection instance
+     */
     private Connection conn = null;
+
+
+    /**
+     * Flag to indicate if this DatabaseHelper instance can execute commands or not
+     */
     private boolean canExecute = false;
     //TODO: execution block while an operation is in progress
 
+
+    /**
+     * The username used for authenticating with the SQL server
+     */
     private final String sqlUsername = "trongame";
+
+
+    /**
+     * The password used for authenticating with the SQL server
+     */
     private final String sqlPassword = "TronGame123";
 
 
+    /**
+     * Used for seamless communication between the game and the SQL server in the background. Structure-safe.
+     * @throws DatabaseException If a connection error happens, such as the server is being unavailable; the specified credentials are incorrect; or the structure is not correct and also cannot be corrected by the software etc.
+     */
     public DatabaseHelper() throws DatabaseException {
         log("Connecting to database..", false);
         String url = "jdbc:mysql://" + hostname + ":" + port;
@@ -92,6 +134,12 @@ public class DatabaseHelper {
         canExecute = true;
     }
 
+
+    /**
+     * Increases a player's score in the database. If a record isn't found in the table with this specific player-name, a new will be automatically generated and updated.
+     * @param pName The player whose score is about to be increased
+     * @throws DatabaseExecutionException if the instance cannot execute commands currently, or if some error has occurred while inserting/updating a row
+     */
     public void increaseWinningPlayer(String pName) throws DatabaseExecutionException{
         log("Increasing winning count for '" + pName + "'...", false);
         if(!canExecute){
@@ -132,6 +180,11 @@ public class DatabaseHelper {
 
     }
 
+
+    /**
+     * Lists all the scores stored in the database as Score objects
+     * @return A list of Score objects, with each one containing a player-name and the player's score
+     */
     public List<Score> getScores(){
         log("Retrieving the scoreboard serialized data..", false);
         if(!canExecute){
@@ -155,12 +208,21 @@ public class DatabaseHelper {
     }
 
 
-
-
-
+    /**
+     * Used for throwing execution related exceptions and errors.
+     * @param msg The error message, optional
+     * @throws DatabaseExecutionException since it is a RuntimeException, the program will not exit/break if it is thrown, so the usage of this method is only advised if some non-game-breaking database errors occur
+     */
     private void throwCantExecuteMessage(String msg) throws DatabaseExecutionException {
-        throw new DatabaseExecutionException("The connection between the database and the game couldn't been established, therefore no queries can be executed." + (msg != null ? " The error message: " + msg : ""));
+        throw new DatabaseExecutionException("The DatabaseHelper is unable to execute any commands." + (msg != null ? " The error message: " + msg : ""));
     }
+
+
+    /**
+     * Logging utility, for easier reporting to the console
+     * @param msg The message to log
+     * @param error True if it is an error, false otherwise
+     */
     private void log(String msg, boolean error){
         if(error){
             System.err.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][DB][ERROR] " + msg);

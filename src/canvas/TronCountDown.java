@@ -6,6 +6,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class TronCountDown extends JPanel {
+    /**
+     * The countdown number
+     */
     public int count = 3;
 
     public void setCount(int count) {

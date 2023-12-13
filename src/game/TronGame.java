@@ -14,33 +14,108 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class TronGame {
+
+    /**
+     * Instance for the database wrapper
+     */
     private final DatabaseHelper db;
+
+
+    /**
+     * The color for the first motor's light-path
+     */
     public static MotorcycleColor pOne__color;
+
+
+    /**
+     * The color for the second motor's light-path
+     */
     public static MotorcycleColor pTwo__color;
+
+
+    /**
+     * Flag to indicate if a gameCycle is started
+     */
     private boolean isGameGoing = false;
+
+
+    /**
+     * Flag to indicate if the countdown is currently shown
+     */
     private boolean isCountdown = false;
 
+
+    /**
+     * The name of the first player
+     */
     private String p1Name;
+
+
+    /**
+     * The name of the second player
+     */
     private String p2Name;
 
+
+    /**
+     * The position of the first motor
+     */
     public static MotorCyclePosition m1 = new MotorCyclePosition(50, UniversalData.getWindowDimension().height - 200, 90);
+
+
+    /**
+     * The position of the second motor
+     */
     public static MotorCyclePosition m2 = new MotorCyclePosition(UniversalData.getWindowDimension().width - 100, 50, 270);
 
+
+    /**
+     * Offset for the motor's sprite horizontally (used for collision checks)
+     */
     public static final int MotorModelOffsetHorizontal = 7;
+
+
+    /**
+     * Offset for the motor's sprite vertically (used for collision checks)
+     */
     public static final int MotorModelOffsetVertical = 5;
+
+
+    /**
+     * Instance for the GUI controller
+     */
     private final TronGUI gui;
+
+
+    /**
+     * Instance for the motor/light-path canvas
+     */
     private TronCanvas canvas;
 
+
+    /**
+     * This class controls the gameflow, determines the winners, collisions etc. Basically the whole game depends on this class, this is the core.
+     * @param gui The GUI controller which will be used for GUI manipulation
+     * @throws DatabaseException if there is some issues with the database
+     */
     public TronGame(TronGUI gui) throws DatabaseException {
         db = new DatabaseHelper();
 
         this.gui = gui;
     }
 
+
+    /**
+     * Called when the 'Start Game' button is pressed in the GUI. Resets the flags, and indicates to the GUI to show the countdown.
+     * @param p1 The name for player 1
+     * @param p2 The name for player 2
+     * @param p1Color The color for player 1
+     * @param p2Color The color for player 2
+     */
     public void launchGame(String p1, String p2, MotorcycleColor p1Color, MotorcycleColor p2Color) {
         isGameGoing = false;
-        m1 = new MotorCyclePosition(50, UniversalData.getWindowDimension().height - 200, 90);
-        m2 = new MotorCyclePosition(UniversalData.getWindowDimension().width - 100, 50, 270);
+        m1 = new MotorCyclePosition(50, UniversalData.getWindowDimension().height - 100, 90);
+        m2 = new MotorCyclePosition(UniversalData.getWindowDimension().width - 50, 50, 270);
         pOne__color = p1Color;
         pTwo__color = p2Color;
         canvas = new TronCanvas();
@@ -52,15 +127,23 @@ public class TronGame {
         p2Name = p2;
     }
 
+
+    /**
+     * Called when the countdown reaches 0 on the GUI. Starts the game cycle
+     */
     public void gameLaunched() {
         log("Game started", false);
         isCountdown = false;
-        m1 = new MotorCyclePosition(50, canvas.getHeight() - 200, 90);
-        m2 = new MotorCyclePosition(canvas.getWidth() - 100, 50, 270);
+        m1 = new MotorCyclePosition(50, canvas.getHeight() - 100, 90);
+        m2 = new MotorCyclePosition(canvas.getWidth() - 50, 50, 270);
         isGameGoing = true;
         gameCycle();
     }
 
+
+    /**
+     * Controls the game flow. Called in every interval (declared in UniversalData class). It checks if any motor has won, adds the current position as light-path for both motors into the TronCanvas, and moves the bikes.
+     */
     private void gameCycle() {
         setTimeout(() -> {
             // cos(0) = 1  ----  0deg
@@ -108,6 +191,11 @@ public class TronGame {
 
     }
 
+
+    /**
+     * Checks if any out of the two players have won, or if a draw has happened.
+     * @return 3 if the game is draw, 1/2 if a player has won, 0 otherwise
+     */
     private int checkWinning() {
         boolean draw = false;
         boolean p1Won = false;
@@ -432,9 +520,33 @@ public class TronGame {
 
         return 0;
     }
+
+
+    /**
+     * Checks if a motor's hitbox slipped off-frame
+     * @param x0 First edge's x coordinate
+     * @param y0 First edge's y coordinate
+     * @param x1 Second edge's x coordinate
+     * @param y1 Second edge's y coordinate
+     * @return
+     */
     private boolean isMotorOutOfFrame(int x0, int y0, int x1, int y1){
         return (x0 < 0 || x0 >= UniversalData.getWindowDimension().width || x1 < 0 || x1 >= UniversalData.getWindowDimension().width || y0 < 0 || y0 >= UniversalData.getWindowDimension().height || y1 < 0 || y1 >= UniversalData.getWindowDimension().height);
     }
+
+
+    /**
+     * Checks if the two motors have collided with each other by checking the intersection of their hitboxes
+     * @param m1x0 Motor1 first x coordinate
+     * @param m1x1 Motor1 second x coordinate
+     * @param m1y0 Motor1 first y coordinate
+     * @param m1y1 Motor1 second y coordinate
+     * @param m2x0 Motor2 fist x coordinate
+     * @param m2x1 Motor2 second x coordinate
+     * @param m2y0 Motor2 first y coordinate
+     * @param m2y1 Motor2 second y coordinate
+     * @return true if a collision happened, false otherwise
+     */
     private boolean areMotorsCollided(int m1x0, int m1x1, int m1y0, int m1y1, int m2x0, int m2x1, int m2y0, int m2y1){
         // base motor collide checker
         boolean collided = false;
@@ -469,6 +581,12 @@ public class TronGame {
         }
         return collided;
     }
+
+
+    /**
+     * Handles the pressed keys during the gameflow
+     * @param keycode The pressed keycode, coming from an event
+     */
     public void handleKeyPress(int keycode) {
         switch (keycode) {
             case Keys.A:
@@ -534,10 +652,21 @@ public class TronGame {
         }
     }
 
+
+    /**
+     * An access-point method for the DatabaseHelper instance's getScores() method
+     * @return A list of Score objects
+     */
     public List<Score> getScoreBoardData(){
         return db.getScores();
     }
 
+
+    /**
+     * Logging utility, for easier reporting to the console
+     * @param msg The message to log
+     * @param error True if it is an error, false otherwise
+     */
     private void log(String msg, boolean error) {
         if (error) {
             System.err.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][GAME][ERROR] " + msg);
@@ -546,6 +675,12 @@ public class TronGame {
         }
     }
 
+
+    /**
+     * Used by game cycle to periodically start itself on separate threads for timing reasons, and to not hang up the main GUI process. Basically calls the provided runnable after a specific provided delay
+     * @param runnable The function/runnable to run after the specified delay
+     * @param delay The delay in milliseconds
+     */
     public static void setTimeout(Runnable runnable, int delay){
         new Thread(() -> {
             try {

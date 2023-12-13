@@ -6,8 +6,19 @@ import javax.swing.*;
 import java.awt.*;
 
 public class TronWin extends JPanel {
+
+    /**
+     * The printed winning player's name
+     */
     private String winningPlayer = "";
+
+
+    /**
+     * Flag to indicate if the game ended with a draw
+     */
     private boolean isDraw = false;
+
+
     public void paintComponent(Graphics g){
         g.setColor(new Color(0, 0, 0, 113));
         g.fillRect(0, 0, UniversalData.getWindowDimension().width, UniversalData.getWindowDimension().height);

@@ -21,20 +21,70 @@ import java.util.List;
 import java.util.Objects;
 
 public class TronGUI{
+
+    /**
+     * The main frame
+     */
     private JFrame window;
+
+
+    /**
+     * The main content's panel
+     */
     private JPanel mainContent;
+
+
+    /**
+     * The instance for the countdown canvas
+     */
     private TronCountDown countdown;
+
+
+    /**
+     * The instance for the winning-screen canvas
+     */
     private TronWin winningScreen;
+
+
+    /**
+     * The panel-parent for the canvas instances
+     */
     public JPanel canvasContent;
+
+
+    /**
+     * The instance of the game-control
+     */
     private TronGame game;
 
+
+    /**
+     * Input for the first player's name
+     */
     JTextField playerOneInput = new JTextField();
+
+
+    /**
+     * Input for the first player's color
+     */
     JComboBox<String> playerOneColor = new JComboBox<String>();
+
+
+    /**
+     * Input for the second player's name
+     */
     JTextField playerTwoInput = new JTextField();
+
+
+    /**
+     * Input for the second player's color
+     */
     JComboBox<String> playerTwoColor = new JComboBox<String>();
 
-    //private static Dimension windowDimension = new Dimension(600, 600);
 
+    /**
+     * This is the GUI controller for the game. Any GUI manipulation can be done through this class.
+     */
     public TronGUI(){
         try{
             game = new TronGame(this);
@@ -47,6 +97,12 @@ public class TronGUI{
 
     }
 
+
+    /**
+     * Generates the login UI in the main frame
+     * @param emptyInput true if the input fields were left empty after a previous start-game attempt, false otherwise
+     * @param incorrectColors true if the dropdown fields were left as the same selected item after a previous start-game attempt, false otherwise
+     */
     public void generateLogin(boolean emptyInput, boolean incorrectColors){
         log("Generating login screen..", false);
         if(window != null){
@@ -171,6 +227,10 @@ public class TronGUI{
         window.setVisible(true);
     }
 
+
+    /**
+     * Called when the players click on the 'Start Game' button on the login screen. It indicates to the game logic, that a new game should be generated. If a player name were left empty, or the selected player colors are the same, an error message will be drawn
+     */
     private void startGame(){
         if(Objects.equals(playerOneInput.getText(), "") || Objects.equals(playerTwoInput.getText(), "") || Objects.equals(playerOneInput.getText(), playerTwoInput.getText())){
             log("One or both of the player's names were empty. Re-displaying the login screen", true);
@@ -186,6 +246,15 @@ public class TronGUI{
         log("Two names specified, launching game...", false);
         game.launchGame(playerOneInput.getText(), playerTwoInput.getText(), MotorcycleColor.getColorByName((String) playerOneColor.getSelectedItem()), MotorcycleColor.getColorByName((String) playerTwoColor.getSelectedItem()));
     }
+
+
+    /**
+     * Generates the game space UI by rendering the background, the motors, and a countdown. After the countdown reaches 0, it calls the provided gameLaunchLogicFunction
+     * @param canv The canvas for the motors and light-paths
+     * @param canvBack The canvas for the background
+     * @param gameLaunchLogicFunction The function/runnable to call after the countdown reaches 0
+     * @param game The game logic instance
+     */
     public void generateGameSpace(TronCanvas canv, TronBackground canvBack, Runnable gameLaunchLogicFunction, TronGame game) {
         log("Generating game space..", false);
         if(window != null){
@@ -244,6 +313,11 @@ public class TronGUI{
         log("Starting the countdown...", false);
     }
 
+
+    /**
+     * Generates the winning screen UI. The shown text depends on the winningPlayer parameter
+     * @param winningPlayer If null, a draw text will be generated, and a winning player text if specified
+     */
     public void generateWinningScreen(String winningPlayer){
         if(Objects.equals(winningPlayer, null)){
             // draw
@@ -257,6 +331,11 @@ public class TronGUI{
         }
     }
 
+
+    /**
+     * Counts down, and cals the func parameter if the countdown reached 0 (and also makes the countdown canvas invisible after)
+     * @param func The function/runnable to call when the countdown reaches 0
+     */
     public void startCounting(Runnable func){
         setTimeout(() -> {
             if(countdown.count-1 == 0){
@@ -272,6 +351,13 @@ public class TronGUI{
 
         }, 1000);
     }
+
+
+    /**
+     * Logging utility, for easier reporting to the console
+     * @param msg The message to log
+     * @param error True if it is an error, false otherwise
+     */
     private void log(String msg, boolean error){
         if(error){
             System.err.println("[" + new SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "][GUI][ERROR] " + msg);
@@ -281,6 +367,12 @@ public class TronGUI{
 
     }
 
+
+    /**
+     * Used by the countdown to periodically decrease itself on separate threads for timing reasons, and to not hang up the main GUI process. Basically calls the provided runnable after a specific provided delay
+     * @param runnable The function/runnable to run after the specified delay
+     * @param delay The delay in milliseconds
+     */
     public static void setTimeout(Runnable runnable, int delay){
         new Thread(() -> {
             try {
